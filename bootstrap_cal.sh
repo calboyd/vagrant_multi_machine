@@ -20,8 +20,29 @@ install_nfs_server() {
     service nfs-kernel-server start
 }
 
+install_tftp_server() {
+    apt-get install -y xinetd tftpd tftp
+    cat <<START > /etc/xinetd.d/tftp 
+service tftp
+{
+protocol	= udp
+port		= 69
+socket_type	= dgram
+wait		= yes
+user		= nobody
+server		= /usr/sbin/in.tftpd
+server_args	= /tftpboot
+disable	= no
+}
+START
+    mkdir /tftpboot
+    chmod -R 777 /tftpboot
+    /etc/init.d/xinetd restart
+}
+
 apt-get update
 install_apache
 install_nfs_server
+install_tftp_server
 
 
